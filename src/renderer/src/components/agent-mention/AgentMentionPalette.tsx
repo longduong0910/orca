@@ -13,6 +13,19 @@ import { addAppKeyListener, removeAppKeyListener } from '@/lib/app-keyboard-rout
 import { getShortcutPlatform } from '@/lib/shortcut-platform'
 import { keybindingMatchesAction } from '../../../../shared/keybindings'
 import { listAllAgents, type AddressedAgent } from './live-agent-addresses'
+import { toHostSessionTabId } from '../../../../shared/workspace-layout/terminal-surface-id'
+
+/** The focused pane is the one the mention is pasted into; listing its own agent is noise. */
+function isCallerPane(
+  agent: AddressedAgent,
+  tabId: string | null,
+  callerLeafId: string | null
+): boolean {
+  if (!tabId || agent.terminal.tabId !== toHostSessionTabId(tabId)) {
+    return false
+  }
+  return callerLeafId === null || agent.terminal.leafId === callerLeafId
+}
 
 /** Lists live agents by name and pastes `@name ` into the terminal that was focused. */
 export function AgentMentionPalette(): React.JSX.Element {
@@ -34,9 +47,13 @@ export function AgentMentionPalette(): React.JSX.Element {
       }
       event.preventDefault()
       event.stopPropagation()
-      const { activeTabType, activeTabId } = useAppStore.getState()
-      targetTabIdRef.current = activeTabType === 'terminal' ? activeTabId : null
-      void listAllAgents().then(setAgents)
+      const { activeTabType, activeTabId, terminalLayoutsByTabId } = useAppStore.getState()
+      const tabId = activeTabType === 'terminal' ? activeTabId : null
+      targetTabIdRef.current = tabId
+      const callerLeafId = tabId ? (terminalLayoutsByTabId[tabId]?.activeLeafId ?? null) : null
+      void listAllAgents().then((agents) =>
+        setAgents(agents.filter((agent) => !isCallerPane(agent, tabId, callerLeafId)))
+      )
     }
     addAppKeyListener('keydown', onKeyDown)
     return () => removeAppKeyListener('keydown', onKeyDown)
