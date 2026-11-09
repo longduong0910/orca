@@ -20,6 +20,7 @@ import type { OrchestrationMailboxPointerSubmitTarget } from '../mailbox/termina
 import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/layout-owner-switch'
 import { startedMainTerminalSurfaces } from '../../terminal/surface/main-terminal-surfaces'
 import { mainPaneVerdict } from '../../terminal/surface/main-pane-verdict'
+import { readClaudeSessionName } from '../../../claude/claude-session-name'
 
 export abstract class OrcaRuntimeWithWriteOrchestrationPointerPty extends OrcaRuntimeWithRefreshFloatingWorkspacePtyLiveness {
   protected abstract issueHandle(
@@ -68,7 +69,7 @@ export abstract class OrcaRuntimeWithWriteOrchestrationPointerPty extends OrcaRu
     foregroundAgent: TerminalAgent | null | undefined,
     title: string | null,
     paneKey: string | null
-  ): { agentIdentity?: TerminalAgent } {
+  ): { agentIdentity?: TerminalAgent; agentSessionName?: string } {
     const hookRow = paneKey
       ? selectRuntimeHookAgentRowForPane(this.getAgentProviderSessionRowsForPaneFn?.(paneKey) ?? [])
       : null
@@ -80,7 +81,14 @@ export abstract class OrcaRuntimeWithWriteOrchestrationPointerPty extends OrcaRu
       foregroundAgent,
       title
     })
-    return agentIdentity ? { agentIdentity } : {}
+    const sessionName =
+      agentIdentity === 'claude' && hookRow?.providerSession
+        ? readClaudeSessionName(hookRow.providerSession)
+        : null
+    return {
+      ...(agentIdentity ? { agentIdentity } : {}),
+      ...(sessionName ? { agentSessionName: sessionName } : {})
+    }
   }
 
   /** A user's pane name from the saved layout: every client's pane rename lands there. */

@@ -181,8 +181,8 @@ export async function getBrowserWorktreeSelector(
 }
 
 const AGENT_NAME_LOOKUP_LIMIT = 500
-// `<repo>_<n>` or `<dir>_<hex tag>` agent names; raw `term_<uuid>` handles pass through untouched.
-const AGENT_NAME_PATTERN = /^(?!term_)[a-z0-9_]+_[0-9a-f]+$/
+// `<dir>_<hex tag>` or Claude Code's `<dir>-<n>` agent names; raw `term_<uuid>` handles pass through untouched.
+const AGENT_NAME_PATTERN = /^(?!term_)[a-z0-9]+(?:[_-][a-z0-9]+)+$/
 
 async function resolveAgentNameHandle(name: string, client: RuntimeClient): Promise<string> {
   const response = await client.call<RuntimeTerminalListResult>('terminal.list', {
