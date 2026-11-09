@@ -831,6 +831,7 @@ async function signMacComputerUseHelper(helperAppPath, packager) {
   const identity =
     process.env.ORCA_COMPUTER_MACOS_SIGN_IDENTITY ??
     process.env.CSC_NAME ??
+    process.env.ORCA_LOCAL_MAC_SIGN_IDENTITY ??
     findInstalledMacSigningIdentity(codeSigningInfo?.keychainFile) ??
     (isMacRelease ? null : '-')
   if (!identity) {
@@ -891,6 +892,7 @@ async function signMacStandaloneHelper(helperPath, helperName, packager, entitle
       : null
   const identity =
     process.env.CSC_NAME ??
+    process.env.ORCA_LOCAL_MAC_SIGN_IDENTITY ??
     findInstalledMacSigningIdentity(codeSigningInfo?.keychainFile) ??
     (isMacRelease ? null : '-')
   if (!identity) {

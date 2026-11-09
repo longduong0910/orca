@@ -20,11 +20,17 @@ fi
 
 pnpm install
 pnpm -C mobile install --frozen-lockfile
-pnpm build:unpack
+# A stable self-signed cert keeps macOS folder grants across rebuilds; ad-hoc identity changes every build.
+SIGN_IDENTITY="${ORCA_LOCAL_MAC_SIGN_IDENTITY:-Orca Local}"
+if ! security find-identity -v -p codesigning | grep -qF "\"$SIGN_IDENTITY\""; then
+  echo "No codesigning identity \"$SIGN_IDENTITY\"; signing ad-hoc (macOS will re-ask for folder access)."
+  SIGN_IDENTITY="-"
+fi
+ORCA_LOCAL_MAC_SIGN_IDENTITY="$SIGN_IDENTITY" pnpm build:unpack
 # Without a Developer ID, electron-builder leaves the main binary signed as "Electron", so macOS drops its notifications.
-# Ad-hoc sign Electron's bundles, then the app; Helpers/ is already signed by afterPack.
+# Sign Electron's bundles, then the app; Helpers/ is already signed by afterPack.
 for bundle in "$BUILT_APP"/Contents/Frameworks/*.framework "$BUILT_APP"/Contents/Frameworks/*.app "$BUILT_APP"; do
-  codesign --force --sign - "$bundle"
+  codesign --force --sign "$SIGN_IDENTITY" "$bundle"
 done
 codesign --verify --deep --strict "$BUILT_APP"
 
