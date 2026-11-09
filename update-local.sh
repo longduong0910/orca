@@ -21,6 +21,12 @@ fi
 pnpm install
 pnpm -C mobile install --frozen-lockfile
 pnpm build:unpack
+# Without a Developer ID, electron-builder leaves the main binary signed as "Electron", so macOS drops its notifications.
+# Ad-hoc sign Electron's bundles, then the app; Helpers/ is already signed by afterPack.
+for bundle in "$BUILT_APP"/Contents/Frameworks/*.framework "$BUILT_APP"/Contents/Frameworks/*.app "$BUILT_APP"; do
+  codesign --force --sign - "$bundle"
+done
+codesign --verify --deep --strict "$BUILT_APP"
 
 # Detached: quitting Orca may kill this shell when it runs inside an Orca terminal.
 nohup bash -c '
