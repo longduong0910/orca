@@ -107,6 +107,7 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
       'terminal stop',
       'terminal rename',
       'terminal set-pane-title',
+      'terminal agents-mcp',
       'terminal create',
       'terminal switch',
       'terminal close',

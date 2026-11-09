@@ -1757,7 +1757,8 @@
             "7d4bc516ee": "Failed to switch profile",
             "f518e89aa5": "Project already exists in that profile",
             "f03ae7f27b": "Failed to transfer project",
-            "signInTimedOut": "Sign-in timed out"
+            "signInTimedOut": "Sign-in timed out",
+            "renameFailed": "Failed to rename profile"
           }
         },
         "runtime": {
@@ -24300,6 +24301,7 @@
       "terminalSplitRight": "Split terminal right",
       "terminalSplitDown": "Split terminal down",
       "terminalSwitchInputSource": "Switch input source / language (native)",
+      "agentMentionPalette": "Mention a live agent",
       "newAgentTab": "New {{agent}} tab",
       "tabNewBrowserSplitRight": "New browser tab in right split",
       "eca3c9fdd7": "Select tab 1–9",
@@ -25313,5 +25315,11 @@
       "read": "Usage could not be loaded. Try Refresh again.",
       "retry": "Refresh"
     }
+  },
+  "agentMentionPalette": {
+    "title": "Mention a live agent",
+    "description": "Pick an agent to address by name",
+    "placeholder": "Search agents…",
+    "empty": "No live agents"
   }
 }

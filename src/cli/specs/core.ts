@@ -125,6 +125,16 @@ export const CORE_COMMAND_SPECS: CommandSpec[] = [
     ]
   },
   {
+    path: ['terminal', 'agents-mcp'],
+    summary: 'Serve live agent names as MCP resources over stdio',
+    usage: 'orca terminal agents-mcp',
+    allowedFlags: [...GLOBAL_FLAGS],
+    notes: [
+      'Register once: claude mcp add --scope user orca-agents -- orca terminal agents-mcp',
+      'Then type @ in Claude Code to pick a live agent such as orca_4dfe; address it with --terminal orca_4dfe.'
+    ]
+  },
+  {
     path: ['terminal', 'show'],
     summary: 'Show terminal metadata and preview',
     usage: 'orca terminal show [--terminal <handle>] [--json]',

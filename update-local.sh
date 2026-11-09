@@ -26,7 +26,8 @@ pnpm build:unpack
 nohup bash -c '
   set -e
   osascript -e "quit app \"Orca\"" || true
-  while pgrep -x Orca >/dev/null; do sleep 1; done
+  # CLI/MCP children also run the Orca binary, so ask for the app, not the process name.
+  while [ "$(osascript -e "application \"Orca\" is running")" = "true" ]; do sleep 1; done
   rsync -a --no-specials --no-devices --delete "'"$DATA_DIR"'/" "'"$BACKUP_DIR"'/"
   rm -rf "'"$APP_PATH"'.new"
   cp -R "'"$BUILT_APP"'" "'"$APP_PATH"'.new"

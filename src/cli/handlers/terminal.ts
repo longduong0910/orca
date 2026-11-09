@@ -52,6 +52,7 @@ import {
 import { revealPairedTerminalOnLocalDesktop } from '../paired-terminal-desktop-reveal'
 import { terminalCloseHandler } from './terminal-close'
 import { terminalSendHandler } from './terminal-send'
+import { terminalAgentsMcpHandler } from './terminal-agents-mcp'
 
 // Long terminal waits must outlive the ordinary transport timeout.
 const DEFAULT_TERMINAL_WAIT_RPC_TIMEOUT_MS = 5 * 60 * 1000
@@ -121,6 +122,7 @@ export const TERMINAL_HANDLERS: Record<string, CommandHandler> = {
     printResult(result, json, formatTerminalRead)
   },
   'terminal send': terminalSendHandler,
+  'terminal agents-mcp': terminalAgentsMcpHandler,
   'terminal wait': async ({ flags, client, cwd, json }) => {
     const timeoutMs = getOptionalPositiveIntegerFlag(flags, 'timeout-ms')
     const result = await client.call<{ wait: RuntimeTerminalWait }>(
