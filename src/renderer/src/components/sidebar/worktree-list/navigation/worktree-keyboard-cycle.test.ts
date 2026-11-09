@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import type { HostSectionRow } from '../../../../../../shared/sidebar-list/host-section-rows'
 import type { FolderWorkspaceRow } from '../../../../../../shared/sidebar-list/row-types'
-import { getCyclableRowIdentity, getCyclableWorktreeIds } from './worktree-keyboard-cycle'
+import {
+  getCyclableRowIdentity,
+  getCyclableWorktreeIds,
+  resolveCycledWorkspaceRow
+} from './worktree-keyboard-cycle'
 import { getRenderedWorkspaceRowsInSidebarOrder as getCyclableWorktreeRows } from './worktree-sidebar-row-preference'
 
 const folderRow: FolderWorkspaceRow = {
@@ -91,5 +95,25 @@ describe('getCyclableWorktreeIds', () => {
       'local|folder:folder-1',
       'ssh:host-b|folder:folder-1'
     ])
+  })
+
+  it('skips rows the filter rejects, falling back to every row when none pass', () => {
+    const rows = [worktree('a'), worktree('b'), worktree('c')]
+    const cycle = (live: string[]) =>
+      resolveCycledWorkspaceRow({
+        rows,
+        pinnedDisplayPolicy: 'single-location',
+        activeWorktreeId: 'a',
+        activeWorkspaceExecutionHostId: null,
+        lastActiveWorkspace: null,
+        navHistory: [],
+        navHistoryIndex: -1,
+        direction: 'down',
+        includeRow: (row) => live.includes(row.worktree.id)
+      })?.worktree.id
+
+    expect(cycle(['a', 'c'])).toBe('c')
+    expect(cycle(['a'])).toBe('a')
+    expect(cycle([])).toBe('b')
   })
 })

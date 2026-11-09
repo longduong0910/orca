@@ -26,6 +26,9 @@ const state: {
   worktreeNavHistory: [],
   worktreeNavHistoryIndex: -1
 }
+vi.mock('../../workspace-card/activity/use-worktree-activity-status', () => ({
+  selectWorktreeActivityStatus: () => 'active'
+}))
 vi.mock('@/store', () => ({
   useAppStore: Object.assign((selector: (value: typeof state) => unknown) => selector(state), {
     getState: () => state

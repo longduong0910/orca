@@ -133,3 +133,20 @@ export function useWorktreeActivityStatus(worktreeId: string): WorktreeStatus {
     ]
   )
 }
+
+/** Same status the card dot shows, read once outside React. */
+export function selectWorktreeActivityStatus(state: AppState, worktreeId: string): WorktreeStatus {
+  const agentSummary = selectWorktreeAgentActivitySummary(state, worktreeId)
+  return resolveWorktreeStatus({
+    tabs: state.tabsByWorktree[worktreeId] ?? EMPTY_TABS,
+    browserTabs: state.browserTabsByWorktree[worktreeId] ?? EMPTY_BROWSER_TABS,
+    hasStructuredChat: hasAwakeStructuredChat(
+      state.unifiedTabsByWorktree[worktreeId],
+      state.structuredChatSleptAtByPaneKey
+    ),
+    ptyIdsByTabId: selectWorktreeActivityPtyIds(state, worktreeId),
+    runtimePaneTitlesByTabId: selectRuntimePaneTitlesForWorktree(state, worktreeId),
+    terminalLayoutRootsByTabId: selectTerminalLayoutRootsForWorktree(state, worktreeId),
+    ...agentSummary
+  })
+}

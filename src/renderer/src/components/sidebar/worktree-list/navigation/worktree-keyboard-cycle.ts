@@ -140,8 +140,16 @@ export function resolveCycledWorkspaceRow(args: {
   navHistory: readonly WorktreeNavHistoryEntry[]
   navHistoryIndex: number
   direction: 'up' | 'down'
+  /** Rows failing this are skipped (unless none pass); the active row always stays as the anchor. */
+  includeRow?: (row: RenderedWorkspaceRow) => boolean
 }): RenderedWorkspaceRow | null {
-  const worktreeRows = getCyclableWorktreeRows(args.rows, args.pinnedDisplayPolicy)
+  const { includeRow } = args
+  const renderedRows = getCyclableWorktreeRows(args.rows, args.pinnedDisplayPolicy)
+  const hasIncludedRow = includeRow ? renderedRows.some(includeRow) : false
+  const worktreeRows =
+    includeRow && hasIncludedRow
+      ? renderedRows.filter((row) => row.worktree.id === args.activeWorktreeId || includeRow(row))
+      : renderedRows
   const anchorWorktreeId = resolveCycleAnchorWorktreeId({
     activeWorktreeId: args.activeWorktreeId,
     navHistory: args.navHistory,
