@@ -10,6 +10,7 @@ import { keybindingMatchesAction } from '../../../../../../shared/keybindings/ma
 import type { HostSectionRow } from '../../../../../../shared/sidebar-list/hosts/host-section-rows'
 import type { PinnedWorktreeDisplayPolicy } from '../../../../../../shared/sidebar-list/row-types'
 import type { LastActiveCycleWorkspace, SidebarWorkspacePreview } from './worktree-keyboard-cycle'
+import type { RenderedWorkspaceRow } from './worktree-sidebar-row-preference'
 import { resolveCycledWorkspaceRow } from './worktree-keyboard-cycle'
 import { addAppKeyListener, removeAppKeyListener } from '@/lib/keyboard/app-keyboard-router'
 import type { Worktree } from '../../../../../../shared/worktree/types'
@@ -18,6 +19,12 @@ import type { WorktreeContextMenuDeleteIntent } from '../../workspace-actions/co
 import { useSidebarWorkspaceDeleteKeyboard } from './use-sidebar-workspace-delete-keyboard'
 import { textInputOwnsComposition } from '../../../../../../shared/keybindings/text-input-shortcut-policy'
 import { useWorkspaceNeighborPrewarm } from './use-neighbor-prewarm'
+import { selectWorktreeActivityStatus } from '../../workspace-card/activity/use-worktree-activity-status'
+
+function isLiveWorkspaceRow(row: RenderedWorkspaceRow): boolean {
+  const status = selectWorktreeActivityStatus(useAppStore.getState(), row.worktree.id)
+  return status !== 'inactive'
+}
 
 const PREVIEW_COMMIT_FIRST_REPEAT_MS = 120
 const PREVIEW_COMMIT_MIN_MS = 50
@@ -107,7 +114,7 @@ export function useWorktreeListKeyboardNavigation(args: {
   useEffect(() => clearPreviewCommitTimer, [clearPreviewCommitTimer])
 
   const navigateWorktree = useCallback(
-    (direction: 'up' | 'down', isRepeat: boolean, selectInList = false) => {
+    (direction: 'up' | 'down', isRepeat: boolean, selectInList = false, skipInactive = false) => {
       const { worktreeNavHistory, worktreeNavHistoryIndex } = useAppStore.getState()
       const previewState = previewRef.current
       const preview =
@@ -126,7 +133,8 @@ export function useWorktreeListKeyboardNavigation(args: {
         lastActiveWorkspace: lastActiveWorkspaceRef.current,
         navHistory: worktreeNavHistory,
         navHistoryIndex: worktreeNavHistoryIndex,
-        direction
+        direction,
+        includeRow: skipInactive ? isLiveWorkspaceRow : undefined
       })
       if (!nextRow) {
         return
@@ -217,7 +225,8 @@ export function useWorktreeListKeyboardNavigation(args: {
       if (direction && !textFieldClaimsActionKey(e, directionAction) && !hasVisibleOverlay()) {
         endListNavigation()
         markDirectScrollInput()
-        navigateWorktree(direction, e.repeat)
+        // ponytail: global chord skips grey (inactive) workspaces; list arrows still visit every row
+        navigateWorktree(direction, e.repeat, false, true)
         e.preventDefault()
         // Why: a user-bound chord fired from a field must not also reach the field's own handler.
         e.stopPropagation()
