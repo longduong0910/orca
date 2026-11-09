@@ -30,6 +30,12 @@ describe('remote agent names', () => {
     }
     expect(agentAddressName(terminal)).toBe('be_creative_studio_app_0728')
     expect(agentAddressName({ ...terminal, agentIdentity: undefined })).toBeNull()
+    expect(agentAddressName({ ...terminal, agentSessionName: 'be-creative-studio-app-39' })).toBe(
+      'be-creative-studio-app-39'
+    )
+    expect(parseRemoteAgentName('be-creative-studio-app-39@david_davinci')?.agentName).toBe(
+      'be-creative-studio-app-39'
+    )
     expect(parseRemoteAgentName('be_creative_studio_app_0728@david_davinci')).toEqual({
       agentName: 'be_creative_studio_app_0728',
       serverSlug: 'david_davinci'

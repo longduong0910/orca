@@ -16,7 +16,7 @@ export function toRemoteAgentName(agentName: string, serverName: string): string
 export function parseRemoteAgentName(
   value: string
 ): { agentName: string; serverSlug: string } | null {
-  const match = /^([a-z0-9_]+_[0-9a-f]+)@([a-z0-9_]+)$/.exec(value)
+  const match = /^((?!term_)[a-z0-9_-]+)@([a-z0-9_]+)$/.exec(value)
   return match ? { agentName: match[1], serverSlug: match[2] } : null
 }
 
@@ -25,13 +25,17 @@ const HANDLE_TAG_LENGTH = 4
 
 type AddressableTerminal = {
   agentIdentity?: string
+  agentSessionName?: string
   handle: string
   worktreeId: string
   worktreePath: string
 }
 
-/** `<worktree dir>_<handle tag>`, e.g. `orca_4dfe`: stable for the terminal's lifetime, on any Orca version. */
+/** The agent's own session name when it has one (`orca-d9`), else `<worktree dir>_<handle tag>` (`orca_4dfe`). */
 export function terminalAddressName(terminal: AddressableTerminal): string | null {
+  if (terminal.agentSessionName) {
+    return terminal.agentSessionName
+  }
   if (!terminal.handle.startsWith(HANDLE_PREFIX)) {
     return null
   }
