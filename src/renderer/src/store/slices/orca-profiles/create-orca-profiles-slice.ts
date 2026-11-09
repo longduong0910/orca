@@ -26,6 +26,7 @@ export type OrcaProfilesSlice = OrcaProfilesAuthActions & {
   fetchOrcaProfiles: () => Promise<void>
   fetchOrcaProfileAuthStatus: () => Promise<OrcaProfileAuthStatus | null>
   createLocalOrcaProfile: (name?: string) => Promise<OrcaProfileSummary | null>
+  renameOrcaProfile: (profileId: string, name: string) => Promise<boolean>
   switchOrcaProfile: (profileId: string) => Promise<SwitchOrcaProfileResult | null>
   transferOrcaProfileProject: (
     args: TransferOrcaProfileProjectArgs
@@ -94,6 +95,23 @@ export const createOrcaProfilesSlice: StateCreator<AppState, [], [], OrcaProfile
         }
       )
       return null
+    }
+  },
+
+  renameOrcaProfile: async (profileId, name) => {
+    try {
+      const state = await window.api.orcaProfiles.rename({ profileId, name })
+      set({ activeOrcaProfileId: state.activeProfileId, orcaProfiles: state.profiles })
+      return true
+    } catch (err) {
+      console.error('Failed to rename Orca profile:', err)
+      toast.error(
+        translate('auto.store.slices.orca.profiles.renameFailed', 'Failed to rename profile'),
+        {
+          description: err instanceof Error ? err.message : String(err)
+        }
+      )
+      return false
     }
   },
 

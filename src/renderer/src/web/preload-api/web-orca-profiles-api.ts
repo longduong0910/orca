@@ -35,6 +35,11 @@ export function createWebOrcaProfilesApi(): Partial<PreloadApi> {
         status: 'unconfigured',
         auth: await webOrcaProfileAuthStatus()
       }),
+      rename: () =>
+        Promise.resolve({
+          activeProfileId: DEFAULT_LOCAL_ORCA_PROFILE_ID,
+          profiles: [createDefaultLocalOrcaProfile(0)]
+        }),
       switchProfile: () => Promise.resolve({ status: 'already-active' }),
       transferProject: (args) =>
         Promise.resolve({

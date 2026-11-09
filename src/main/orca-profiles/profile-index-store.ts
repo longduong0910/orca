@@ -92,7 +92,7 @@ function normalizeProfileIndex(raw: unknown): OrcaProfileIndex | null {
   }
 }
 
-function sanitizeProfileName(value: unknown): string {
+export function sanitizeProfileName(value: unknown): string {
   const trimmed = typeof value === 'string' ? value.trim() : ''
   return trimmed.length > 0 ? trimmed.slice(0, 80) : 'New Profile'
 }

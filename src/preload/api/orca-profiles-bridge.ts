@@ -29,6 +29,7 @@ export const orcaProfilesApi = {
   },
   createLocal: (args) => ipcRenderer.invoke('orcaProfiles:createLocal', args),
   createCloudLinked: (args) => ipcRenderer.invoke('orcaProfiles:createCloudLinked', args),
+  rename: (args) => ipcRenderer.invoke('orcaProfiles:rename', args),
   switchProfile: (args) =>
     prepareAndInvokeAppRestart(
       window,
