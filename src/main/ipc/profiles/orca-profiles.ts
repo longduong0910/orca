@@ -10,6 +10,7 @@ import type {
   FindOrcaProfileProjectsByPathArgs,
   FindOrcaProfileProjectsByPathResult,
   OrcaProfileListResult,
+  OrcaProfileListState,
   RefreshCurrentOrcaProfileAuthResult,
   SwitchOrcaProfileArgs,
   SwitchOrcaProfileResult,
@@ -27,6 +28,7 @@ import {
   getOrcaProfileListState,
   setActiveOrcaProfile
 } from '../../orca-profiles/profile-index-store'
+import { renameOrcaProfile } from '../../orca-profiles/profile-rename'
 import { initializeNewOrcaProfileState } from '../../orca-profiles/storage/new-profile-state'
 import { getProfileUserDataPath } from '../../orca-profiles/profile-storage-paths'
 import { isMultiProfileUiEnabled } from '../../orca-profiles/profile-ui-scope'
@@ -173,6 +175,12 @@ export function registerOrcaProfileHandlers(
       return result
     }
   )
+
+  ipcMain.handle('orcaProfiles:rename', (_event, args: unknown): OrcaProfileListState => {
+    const profileId = profileIdFromArgs(args)
+    const name = args && typeof args === 'object' && 'name' in args ? args.name : undefined
+    return renameOrcaProfile(profileId, name)
+  })
 
   ipcMain.handle(
     'orcaProfiles:switch',

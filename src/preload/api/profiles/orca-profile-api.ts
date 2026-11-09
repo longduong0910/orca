@@ -9,6 +9,7 @@ import type {
   FindOrcaProfileProjectsByPathResult,
   OrcaProfileAuthStatus,
   OrcaProfileListResult,
+  OrcaProfileListState,
   OrcaProfileOrgInviteRevokeArgs,
   OrcaProfileOrgMemberChangeRoleArgs,
   OrcaProfileOrgMemberInviteArgs,
@@ -35,6 +36,7 @@ export type OrcaProfileApi = {
   createCloudLinked: (
     args?: CreateCloudLinkedOrcaProfileArgs
   ) => Promise<CreateCloudLinkedOrcaProfileResult>
+  rename: (args: { profileId: string; name: string }) => Promise<OrcaProfileListState>
   switchProfile: (args: SwitchOrcaProfileArgs) => Promise<SwitchOrcaProfileResult>
   transferProject: (
     args: TransferOrcaProfileProjectArgs
