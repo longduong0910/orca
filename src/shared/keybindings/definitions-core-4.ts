@@ -167,5 +167,13 @@ export const KEYBINDING_DEFINITION_CORE_4: readonly KeybindingDefinition[] = [
     scope: 'tabs',
     searchKeywords: ['shortcut', 'tab', 'move', 'right', 'reorder'],
     defaultBindings: platformBindings([])
+  },
+  {
+    id: 'agent.mentionPalette',
+    title: 'Mention a live agent',
+    group: 'Agents',
+    scope: 'global',
+    searchKeywords: ['shortcut', 'agent', 'mention', 'name', 'message', 'send'],
+    defaultBindings: platformBindings(['Mod+Shift+2'])
   }
 ]

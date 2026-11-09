@@ -24,11 +24,11 @@ import { useTabRenameReturnFocus } from './use-tab-rename-return-focus'
 import { SortableTabContextMenu } from './SortableTabContextMenu'
 import { useSortableTabContextMenu } from './use-sortable-tab-context-menu'
 import { useTranslate } from '@/i18n/use-translate'
-import { TAB_LABEL_WIDTH_CLASSES } from './tab-width-rules'
 import { useTabStripSlotProps } from './use-tab-strip-slot-props'
 import { useTabStripPointerActivation } from './tab-strip-pointer-activation'
 import { useTabContextMenuOpening } from './tab-context-menu-opening'
 import { TerminalTabLeadingIcon } from './TerminalTabLeadingIcon'
+import { TabTitleWithAgentAddress } from '../agent-mention/TabTitleWithAgentAddress'
 import {
   isTerminalTabActivityLive,
   terminalTabHasUnreadActivity
@@ -290,7 +290,7 @@ export default function SortableTab({
           spellCheck={false}
         />
       ) : (
-        <span className={`${TAB_LABEL_WIDTH_CLASSES} mr-1`}>{titleNode}</span>
+        <TabTitleWithAgentAddress tabId={tab.id} title={titleNode} />
       )}
       {tab.color && !isEditing && (
         <span

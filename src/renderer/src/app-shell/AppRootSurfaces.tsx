@@ -32,6 +32,7 @@ import {
 } from './app-root-surface-settings'
 import type { FloatingWorkspacePanelState } from './use-floating-workspace-panel'
 import type { OnboardingGate } from './use-onboarding-and-feature-tips'
+import { AgentMentionPalette } from '../components/agent-mention/AgentMentionPalette'
 
 const QuickOpen = lazy(() => import('../components/QuickOpen'))
 const WorkspaceCleanupDialog = lazy(
@@ -247,6 +248,7 @@ export const AppRootSurfaces = memo(function AppRootSurfaces(props: {
           </ModalBoundary>
         ) : null}
       </Suspense>
+      <AgentMentionPalette />
       <Suspense fallback={null}>
         {mountedLazyModalIds.has('quick-open') ? (
           <ModalBoundary boundaryId="modal.quick-open" resetKey={activeModal === 'quick-open'}>
