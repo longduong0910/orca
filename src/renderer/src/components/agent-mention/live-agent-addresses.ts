@@ -3,6 +3,11 @@ import { useAppStore } from '@/store'
 import { callRuntimeRpc } from '@/runtime/rpc/calls/runtime-rpc-call'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import {
+  LOCAL_EXECUTION_HOST_ID,
+  toRuntimeExecutionHostId,
+  type ExecutionHostId
+} from '../../../../shared/execution-host'
+import {
   LiveAgentTerminals,
   terminalAddressName,
   toRemoteAgentName
@@ -14,7 +19,11 @@ import type {
 import { toHostSessionTabId } from '../../../../shared/workspace-layout/terminal-surface-id'
 
 /** `address` is what `--terminal` accepts: `orca_4dfe` here, `orca_4dfe@david_davinci` on a paired server. */
-export type AddressedAgent = { address: string; terminal: RuntimeTerminalSummary }
+export type AddressedAgent = {
+  address: string
+  hostId: ExecutionHostId
+  terminal: RuntimeTerminalSummary
+}
 
 const AGENT_LIST_LIMIT = 500
 const liveAgentTerminals = new LiveAgentTerminals()
@@ -46,6 +55,7 @@ async function listRemoteAgents(): Promise<AddressedAgent[]> {
   return perServer.flatMap((terminals, index) =>
     terminals.map((terminal) => ({
       address: toRemoteAgentName(terminalAddressName(terminal) ?? '', servers[index].name),
+      hostId: toRuntimeExecutionHostId(servers[index].id),
       terminal
     }))
   )
@@ -67,8 +77,9 @@ function refreshRemoteAgents(): void {
 export async function listAllAgents(): Promise<AddressedAgent[]> {
   refreshRemoteAgents()
   const local = await listNamedAgents({ kind: 'local' })
-  const localAgents = local.map((terminal) => ({
+  const localAgents = local.map((terminal): AddressedAgent => ({
     address: terminalAddressName(terminal) ?? '',
+    hostId: LOCAL_EXECUTION_HOST_ID,
     terminal
   }))
   return [...localAgents, ...remoteAgents]
