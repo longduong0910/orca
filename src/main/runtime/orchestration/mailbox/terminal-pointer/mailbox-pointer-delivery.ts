@@ -59,7 +59,7 @@ export class OrchestrationMailboxPointerDelivery<TWaiter extends OrchestrationMe
   ): void {
     const db = this.deps.getDb()
     const mailboxHandle = options.mailboxHandle
-    if (!db || (!mailboxHandle.startsWith('run:') && !mailboxHandle.startsWith('dispatch:'))) {
+    if (!db) {
       return
     }
     const { ptyId } = terminal
