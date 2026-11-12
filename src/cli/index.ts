@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { applyRemoteAgentTerminalRoute } from './remote-agent-terminal-route'
 import {
   findCommandSpec,
   isCommandGroup,
@@ -106,7 +105,6 @@ export async function main(
     refuseConflictingSessionCallerFlags(commandSpec, parsed.flags)
     await refuseLocalManagementSelector(parsed.commandPath, parsed.flags)
     const RuntimeClientClass = await loadRuntimeClientClass()
-    applyRemoteAgentTerminalRoute(parsed.flags)
     // `--on` runs on the caller's own Orca, which reaches that server; an inherited selection never reroutes it.
     const onCallersOrca = runsOnCallersOrca(parsed.commandPath, parsed.flags)
     if (

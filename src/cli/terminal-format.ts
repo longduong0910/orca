@@ -2,7 +2,6 @@ import {
   PTY_LIVE_NOTE,
   describeUnconfirmedCloseStop
 } from '../shared/terminal/pty/lifecycle/pty-liveness-verdict'
-import { agentAddressName } from '../shared/agent-terminal-name/agent-terminal-name'
 import { describeTerminalWaitBlockedReason } from '../shared/terminal/runtime-policy/terminal-wait-blocked-reason-legacy-alias'
 import { formatListingHostScope, type WithAnnotatedHostScope } from './omitted-host-scope-selectors'
 import type {
@@ -23,11 +22,6 @@ import type {
   RuntimeTerminalWait
 } from '../shared/runtime-types'
 
-function formatAgentAddress(terminal: RuntimeTerminalListResult['terminals'][number]): string {
-  const address = agentAddressName(terminal)
-  return address ? `  @${address}` : ''
-}
-
 export function formatTerminalList(
   result: WithAnnotatedHostScope<RuntimeTerminalListResult>
 ): string {
@@ -38,7 +32,7 @@ export function formatTerminalList(
   const body = result.terminals
     .map(
       (terminal) =>
-        `${terminal.handle}${formatAgentAddress(terminal)}  ${terminal.paneTitle ?? terminal.title ?? '(untitled)'}  ${terminal.connected ? 'connected' : 'disconnected'}${terminal.orphaned ? '  orphaned' : ''}  host=${terminal.executionHostId ?? 'unverifiable'}  ${terminal.worktreePath}\n${terminal.preview ? `preview: ${terminal.preview}` : 'preview: <empty>'}`
+        `${terminal.handle}  ${terminal.paneTitle ?? terminal.title ?? '(untitled)'}  ${terminal.connected ? 'connected' : 'disconnected'}${terminal.orphaned ? '  orphaned' : ''}  host=${terminal.executionHostId ?? 'unverifiable'}  ${terminal.worktreePath}\n${terminal.preview ? `preview: ${terminal.preview}` : 'preview: <empty>'}`
     )
     .join('\n\n')
   const visualLayout = formatTerminalVisualLayouts(result.visualLayouts)

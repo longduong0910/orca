@@ -18,10 +18,12 @@ import type {
 } from '../../../../shared/runtime-types'
 import { toHostSessionTabId } from '../../../../shared/workspace-layout/terminal-surface-id'
 
-/** `address` is what `--terminal` accepts: `orca_4dfe` here, `orca_4dfe@david_davinci` on a paired server. */
+/** `address` is the display name: `orca_4dfe` here, `orca_4dfe@david_davinci` on a paired server. */
 export type AddressedAgent = {
   address: string
   hostId: ExecutionHostId
+  /** Paired server id for `orchestration send --on`; null for a local agent. */
+  serverId: string | null
   terminal: RuntimeTerminalSummary
 }
 
@@ -56,6 +58,7 @@ async function listRemoteAgents(): Promise<AddressedAgent[]> {
     terminals.map((terminal) => ({
       address: toRemoteAgentName(terminalAddressName(terminal) ?? '', servers[index].name),
       hostId: toRuntimeExecutionHostId(servers[index].id),
+      serverId: servers[index].id,
       terminal
     }))
   )
@@ -80,6 +83,7 @@ export async function listAllAgents(): Promise<AddressedAgent[]> {
   const localAgents = local.map((terminal): AddressedAgent => ({
     address: terminalAddressName(terminal) ?? '',
     hostId: LOCAL_EXECUTION_HOST_ID,
+    serverId: null,
     terminal
   }))
   return [...localAgents, ...remoteAgents]
