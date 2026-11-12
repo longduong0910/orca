@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react'
+import { useMemo, useSyncExternalStore } from 'react'
 import { useAppStore } from '@/store'
 import { callRuntimeRpc } from '@/runtime/rpc/calls/runtime-rpc-call'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
@@ -17,6 +17,7 @@ import type {
   RuntimeTerminalSummary
 } from '../../../../shared/runtime-types'
 import { toHostSessionTabId } from '../../../../shared/workspace-layout/terminal-surface-id'
+import { toRemoteRuntimePtyId } from '../../../../shared/remote-runtime/remote-runtime-pty-id'
 
 /** `address` is the display name: `orca_4dfe` here, `orca_4dfe@david_davinci` on a paired server. */
 export type AddressedAgent = {
@@ -90,16 +91,30 @@ export async function listAllAgents(): Promise<AddressedAgent[]> {
 }
 
 let addressesByHostTabId = new Map<string, readonly string[]>()
+let addressesByPtyId = new Map<string, readonly string[]>()
+let ptyAddressesSignature = ''
 const listeners = new Set<() => void>()
 let pollTimer: number | null = null
+
+/** The pty id this window's tab records for the agent's terminal (`ptyIdsByTabId`). */
+function rendererPtyId({ serverId, terminal }: AddressedAgent): string | null {
+  return serverId ? toRemoteRuntimePtyId(terminal.handle, serverId) : terminal.ptyId
+}
 
 async function refreshTabAddresses(): Promise<void> {
   const agents = await listAllAgents()
   const next = new Map<string, string[]>()
-  for (const { address, terminal } of agents) {
-    next.set(terminal.tabId, [...(next.get(terminal.tabId) ?? []), address])
+  const nextByPtyId = new Map<string, string[]>()
+  for (const agent of agents) {
+    next.set(agent.terminal.tabId, [...(next.get(agent.terminal.tabId) ?? []), agent.address])
+    const ptyId = rendererPtyId(agent)
+    if (ptyId) {
+      nextByPtyId.set(ptyId, [...(nextByPtyId.get(ptyId) ?? []), agent.address])
+    }
   }
-  let changed = next.size !== addressesByHostTabId.size
+  const nextPtySignature = JSON.stringify([...nextByPtyId])
+  let changed =
+    next.size !== addressesByHostTabId.size || nextPtySignature !== ptyAddressesSignature
   const merged = new Map<string, readonly string[]>()
   for (const [tabId, addresses] of next) {
     const previous = addressesByHostTabId.get(tabId)
@@ -110,6 +125,8 @@ async function refreshTabAddresses(): Promise<void> {
   }
   if (changed) {
     addressesByHostTabId = merged
+    addressesByPtyId = nextByPtyId
+    ptyAddressesSignature = nextPtySignature
     listeners.forEach((listener) => listener())
   }
 }
@@ -132,5 +149,15 @@ function subscribe(listener: () => void): () => void {
 /** Agent addresses running in this tab's panes, e.g. `['orca_4dfe']`. */
 export function useTabAgentAddresses(tabId: string): readonly string[] {
   const hostTabId = toHostSessionTabId(tabId)
-  return useSyncExternalStore(subscribe, () => addressesByHostTabId.get(hostTabId) ?? NO_ADDRESSES)
+  const ptyIds = useAppStore((state) => state.ptyIdsByTabId[tabId])
+  const byTab = useSyncExternalStore(subscribe, () => addressesByHostTabId.get(hostTabId))
+  const ptyIndex = useSyncExternalStore(subscribe, () => addressesByPtyId)
+  return useMemo(() => {
+    if (byTab) {
+      return byTab
+    }
+    // A host lists a terminal whose pane only a client holds as an orphan (`tabId: pty:N`), so match its PTY.
+    const byPty = (ptyIds ?? []).flatMap((ptyId) => ptyIndex.get(ptyId) ?? [])
+    return byPty.length > 0 ? byPty : NO_ADDRESSES
+  }, [byTab, ptyIndex, ptyIds])
 }
