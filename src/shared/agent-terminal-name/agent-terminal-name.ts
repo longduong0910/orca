@@ -13,13 +13,6 @@ export function toRemoteAgentName(agentName: string, serverName: string): string
   return `${agentName}@${toAgentNameSlug(serverName)}`
 }
 
-export function parseRemoteAgentName(
-  value: string
-): { agentName: string; serverSlug: string } | null {
-  const match = /^((?!term_)[a-z0-9_-]+)@([a-z0-9_]+)$/.exec(value)
-  return match ? { agentName: match[1], serverSlug: match[2] } : null
-}
-
 const HANDLE_PREFIX = 'term_'
 const HANDLE_TAG_LENGTH = 4
 
@@ -43,10 +36,6 @@ export function terminalAddressName(terminal: AddressableTerminal): string | nul
   const directory = path.split(/[\\/]/).pop() ?? ''
   const tag = terminal.handle.slice(HANDLE_PREFIX.length, HANDLE_PREFIX.length + HANDLE_TAG_LENGTH)
   return `${toAgentNameSlug(directory)}_${tag}`
-}
-
-export function agentAddressName(terminal: AddressableTerminal): string | null {
-  return terminal.agentIdentity ? terminalAddressName(terminal) : null
 }
 
 /** Hosts report agentIdentity intermittently for orphaned PTYs; keep a seen agent until its terminal is gone. */

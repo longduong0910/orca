@@ -7,7 +7,6 @@ import {
   formatListingHostScope,
   type WithAnnotatedHostScope
 } from '../hosts/omitted-host-scope-selectors'
-import { agentAddressName } from '../../shared/agent-terminal-name/agent-terminal-name'
 import type {
   RuntimeTerminalClose,
   RuntimeTerminalFocus,
@@ -26,11 +25,6 @@ import type {
 import type { RuntimeTerminalCreate } from '../../shared/terminal/runtime/runtime-terminal-create-contract'
 import type { RuntimeTerminalSend } from '../../shared/terminal/runtime/runtime-terminal-send-contract'
 
-function formatAgentAddress(terminal: RuntimeTerminalListResult['terminals'][number]): string {
-  const address = agentAddressName(terminal)
-  return address ? `  @${address}` : ''
-}
-
 export function formatTerminalList(
   result: WithAnnotatedHostScope<RuntimeTerminalListResult>
 ): string {
@@ -41,7 +35,7 @@ export function formatTerminalList(
   const body = result.terminals
     .map(
       (terminal) =>
-        `${terminal.handle}${formatAgentAddress(terminal)}  ${terminal.paneTitle ?? terminal.title ?? '(untitled)'}  ${terminal.connected ? 'connected' : 'disconnected'}${terminal.orphaned ? '  orphaned' : ''}  host=${terminal.executionHostId ?? 'unverifiable'}  ${terminal.worktreePath}\n${terminal.preview ? `preview: ${terminal.preview}` : 'preview: <empty>'}`
+        `${terminal.handle}  ${terminal.paneTitle ?? terminal.title ?? '(untitled)'}  ${terminal.connected ? 'connected' : 'disconnected'}${terminal.orphaned ? '  orphaned' : ''}  host=${terminal.executionHostId ?? 'unverifiable'}  ${terminal.worktreePath}\n${terminal.preview ? `preview: ${terminal.preview}` : 'preview: <empty>'}`
     )
     .join('\n\n')
   const visualLayout = formatTerminalVisualLayouts(result.visualLayouts)

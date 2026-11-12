@@ -28,7 +28,13 @@ function isCallerPane(
   return callerLeafId === null || agent.terminal.leafId === callerLeafId
 }
 
-/** Lists live agents by name and pastes `@name ` into the terminal that was focused. */
+/** The pasted mention carries the exact send, so the reader mails it and the reply comes back. */
+function mentionText({ address, serverId, terminal }: AddressedAgent): string {
+  const onServer = serverId ? ` --on ${serverId}` : ''
+  return `@${address} (orca orchestration send${onServer} --to ${terminal.handle}) `
+}
+
+/** Lists live agents by name and pastes a mention into the terminal that was focused. */
 export function AgentMentionPalette(): React.JSX.Element {
   const t = useTranslate()
   const keybindings = useAppStore((s) => s.keybindings)
@@ -77,13 +83,13 @@ export function AgentMentionPalette(): React.JSX.Element {
     return () => removeAppKeyListener('keydown', onKeyDown)
   }, [keybindings])
 
-  const insertMention = useCallback((address: string) => {
+  const insertMention = useCallback((agent: AddressedAgent) => {
     setAgents(null)
     const tabId = targetTabIdRef.current
     if (!tabId) {
       return
     }
-    const detail: PasteTerminalTextDetail = { tabId, text: `@${address} ` }
+    const detail: PasteTerminalTextDetail = { tabId, text: mentionText(agent) }
     window.dispatchEvent(new CustomEvent(PASTE_TERMINAL_TEXT_EVENT, { detail }))
   }, [])
 
@@ -97,15 +103,16 @@ export function AgentMentionPalette(): React.JSX.Element {
       <CommandInput placeholder={t('agentMentionPalette.placeholder', 'Search agents…')} />
       <CommandList>
         <CommandEmpty>{t('agentMentionPalette.empty', 'No live agents')}</CommandEmpty>
-        {agents?.map(({ address, terminal }) => (
+        {agents?.map((agent) => (
           <CommandItem
-            key={address}
-            value={`${address} ${terminal.agentIdentity} ${terminal.branch}`}
-            onSelect={() => insertMention(address)}
+            key={agent.address}
+            value={`${agent.address} ${agent.terminal.agentIdentity} ${agent.terminal.branch}`}
+            onSelect={() => insertMention(agent)}
           >
-            <span className="font-medium">@{address}</span>
+            <span className="font-medium">@{agent.address}</span>
             <span className="truncate text-muted-foreground">
-              {terminal.agentIdentity} · {terminal.branch || terminal.worktreePath}
+              {agent.terminal.agentIdentity} ·{' '}
+              {agent.terminal.branch || agent.terminal.worktreePath}
             </span>
           </CommandItem>
         ))}
