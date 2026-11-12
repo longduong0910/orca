@@ -15,7 +15,7 @@ source "$HOME/.nvm/nvm.sh"
 nvm use 24 >/dev/null
 
 if [[ "${1:-}" == "--pull" ]]; then
-  git pull --rebase --autostash
+  git pull --rebase --autostash origin main
 fi
 
 pnpm install
