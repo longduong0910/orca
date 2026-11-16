@@ -1,6 +1,7 @@
 import type { Store } from './store'
 import type { StoreRuntimeState } from './store-runtime-state'
 import { notifySettingsChanged, notifyUIChanged } from './profile-preferences/profile-preferences'
+import { markWorktreeRouteInputsChanged } from '../../workspaces/catalog/local-worktree-scan-generation'
 
 /** Move `next`'s profile into `target`, keeping the listeners subscribed to `target` and telling them what changed. */
 export function adoptStoreProfileState(
@@ -23,6 +24,8 @@ export function adoptStoreProfileState(
   for (const key of [...Object.getOwnPropertyNames(next), ...Object.getOwnPropertySymbols(next)]) {
     Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(next, key)!)
   }
+  // Cached worktree catalog routes still list the source profile's repos.
+  markWorktreeRouteInputsChanged()
   const changedSettings = Object.fromEntries(
     Object.entries(nextRuntime.state.settings).filter(
       ([key, value]) =>
