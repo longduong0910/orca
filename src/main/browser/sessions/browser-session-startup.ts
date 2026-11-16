@@ -32,30 +32,39 @@ export function initializeBrowserSessionsForApp(
   listenForBrowserSystemDialogs()
 
   if (activeProfile) {
-    browserSessionRegistry.configureForOrcaProfile(activeProfile)
-    configureBrowserSitePermissionStore(activeProfile.profileDirectory)
-    configureBrowserSiteDisplayStore(activeProfile.profileDirectory)
-    configureBrowserExtensionProfileDataDirectory(activeProfile.profileDirectory)
-    configureBrowserPasswordVaults(activeProfile.profileDirectory)
-    configureBrowserSessionCookieSnapshots(activeProfile.profileDirectory)
-    configureBrowserRoutePartitionBindingsForOrcaProfile({
-      orcaProfileId: activeProfile.orcaProfileId,
-      profileDirectory: activeProfile.profileDirectory
-    })
-    configurePairedRuntimeBrowserClientHostsForOrcaProfile({
-      orcaProfileId: activeProfile.orcaProfileId
-    })
-    void collectOrphanedBrowserRoutePartitionStorage(activeProfile.listLocalSshTargetIds).catch(
-      (error) => {
-        console.warn('[browser-route-partition] orphan collection failed:', error)
-      }
-    )
+    configureBrowserSessionsForOrcaProfile(activeProfile)
   }
 
   // Replay cookies before Chromium opens the live DB via session.fromPartition.
   browserSessionRegistry.applyPendingCookieImport()
   browserSessionRegistry.initializeBrowserSessionsFromPersistedState()
   initialized = true
+}
+
+/** Point every profile-scoped browser store at one Orca profile; startup and in-process profile switches. */
+export function configureBrowserSessionsForOrcaProfile(
+  activeProfile: BrowserSessionRegistryProfileOptions & {
+    listLocalSshTargetIds?: () => string[]
+  }
+): void {
+  browserSessionRegistry.configureForOrcaProfile(activeProfile)
+  configureBrowserSitePermissionStore(activeProfile.profileDirectory)
+  configureBrowserSiteDisplayStore(activeProfile.profileDirectory)
+  configureBrowserExtensionProfileDataDirectory(activeProfile.profileDirectory)
+  configureBrowserPasswordVaults(activeProfile.profileDirectory)
+  configureBrowserSessionCookieSnapshots(activeProfile.profileDirectory)
+  configureBrowserRoutePartitionBindingsForOrcaProfile({
+    orcaProfileId: activeProfile.orcaProfileId,
+    profileDirectory: activeProfile.profileDirectory
+  })
+  configurePairedRuntimeBrowserClientHostsForOrcaProfile({
+    orcaProfileId: activeProfile.orcaProfileId
+  })
+  void collectOrphanedBrowserRoutePartitionStorage(activeProfile.listLocalSshTargetIds).catch(
+    (error) => {
+      console.warn('[browser-route-partition] orphan collection failed:', error)
+    }
+  )
 }
 
 /** Whether a partition may be opened: before this, opening one would skip a pending cookie import. */

@@ -1,4 +1,5 @@
 import type { BrowserWindow } from 'electron'
+import { switchOrcaProfileInProcess } from '../profile-in-process-switch'
 import { registerCoreHandlers } from '../../ipc/register-core-handlers/register-core-handlers'
 import { attachMainWindowServices } from '../../window/attach-main-window-services'
 import { initTccPromptNotice } from '../../macos-permissions/macos-tcc-prompt-notice'
@@ -101,6 +102,7 @@ async function installMainWindowCoreServices(
           systemCodexHomePath: resolveHostCodexSessionSourceHome(store.getSettings()),
           preparePinnedLaunchHome: (home) => prepareCodexPinnedLaunchHome(home)
         }),
+      switchOrcaProfileInProcess,
       onBeforeRelaunch: async () => {
         state.isQuitting = true
         state.desktopRelayService?.fenceAndCloseNow()

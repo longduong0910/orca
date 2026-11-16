@@ -1,7 +1,5 @@
-import { ipcMain, type WebContents } from 'electron'
+import { ipcMain } from 'electron'
 import type { Store } from '../../persistence/loading-store/store'
-import { relaunchApp, type AppRelaunchReason } from '../../startup/quit/app-relaunch'
-import { quitProcess } from '../../startup/quit/process-quit-request'
 import type {
   CreateLocalOrcaProfileArgs,
   CreateLocalOrcaProfileResult,
@@ -60,9 +58,12 @@ import {
   onOrcaCloudSignInProgressChanged
 } from '../../orca-profiles/cloud-auth/profile-cloud-sign-in-progress'
 import { profileIdFromArgs } from './orca-profile-id-arg'
+import { runBeforeProfileRelaunch, scheduleProfileRelaunch } from './orca-profile-relaunch'
+import type { InProcessProfileSwitchOutcome } from '../../startup/profile-in-process-switch'
 import { transferProjectArgsFromUnknown } from './orca-profile-project-transfer-args'
 
 type RegisterOrcaProfileHandlersOptions = {
+  switchInProcess?: (profileId: string) => Promise<InProcessProfileSwitchOutcome>
   onBeforeRelaunch?: () => void | Promise<void>
   onAuthMutation?: () => void
   onBeforeSignOut?: () => void
@@ -124,32 +125,6 @@ function createCloudLinkedProfileArgsFromUnknown(args: unknown): CreateCloudLink
   }
 }
 
-async function runBeforeProfileRelaunch(
-  onBeforeRelaunch?: () => void | Promise<void>
-): Promise<void> {
-  try {
-    await onBeforeRelaunch?.()
-  } catch (error) {
-    console.warn(
-      '[orca-profiles] Pre-relaunch cleanup failed; continuing profile switch:',
-      error instanceof Error ? error.name : typeof error
-    )
-  }
-}
-
-type ProfileRelaunchReason = Extract<AppRelaunchReason, `profile-${string}`>
-
-function scheduleProfileRelaunch(reason: ProfileRelaunchReason, sender: WebContents): void {
-  if (!sender.isDestroyed()) {
-    sender.send('app:restart-committed')
-  }
-  setTimeout(() => {
-    relaunchApp(reason)
-    // Normal quit preserves renderer scrollback, PTY teardown, stats flush and final daemon checkpoints.
-    quitProcess()
-  }, 150)
-}
-
 export function registerOrcaProfileHandlers(
   store: Store,
   options: RegisterOrcaProfileHandlersOptions = {}
@@ -191,8 +166,14 @@ export function registerOrcaProfileHandlers(
         return { status: 'already-active' }
       }
 
-      // Flush the source profile before switching the startup index; keep its writer alive through relaunch cleanup.
-      await flushActiveProfileBeforeRelaunch(store)
+      const inProcess = (await options.switchInProcess?.(profileId)) ?? 'unsupported'
+      if (inProcess === 'switched') {
+        return { status: 'relaunching' }
+      }
+      if (inProcess === 'unsupported') {
+        // Flush the source profile before switching the startup index; keep its writer alive through relaunch cleanup.
+        await flushActiveProfileBeforeRelaunch(store)
+      }
       setActiveOrcaProfile(profileId)
       await runBeforeProfileRelaunch(options.onBeforeRelaunch)
 

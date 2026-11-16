@@ -5,6 +5,7 @@ import {
 } from '../../agent-hooks/observations/migration-unsupported-pty-state'
 import { agentHookServer } from '../../agent-hooks/server/agent-hook-server'
 import { ActiveViewPreference } from '../preferences/active-view-preference'
+import { adoptStoreProfileState } from './store-profile-adoption'
 import { registerPersistedPaneKeyAlias } from '../restoring-sessions/pane-alias-normalization'
 import { normalizePersistedPaneIdentityState } from '../restoring-sessions/workspace-pane-normalization'
 import { nameEmptyPersistedTerminalLayoutRoots } from '../restoring-sessions/empty-terminal-layout-root-repair'
@@ -12,7 +13,7 @@ import { StoreRuntimeState, type StoreRuntimeOptions } from './store-runtime-sta
 import {
   createStoreDomains,
   installStoreDomainContexts,
-  STORE_DOMAIN_OPERATION_CLASSES,
+  installStoreDomainOperationClasses,
   type StoreDomains,
   type StoreDomainOperations
 } from './store-domain-composition'
@@ -288,6 +289,11 @@ export class Store {
     return authority.quarantineDatabase(quarantineRoot, reason)
   }
 
+  /** In-process profile switch: take over `next`'s profile while keeping this object, which startup handlers captured. */
+  adoptProfileStateFrom(next: Store): void {
+    adoptStoreProfileState(this, next, this.runtime, next.runtime)
+  }
+
   freezeWrites(): void {
     freezeProfileStateWrites(this.runtime)
   }
@@ -318,11 +324,4 @@ export class Store {
 // oxlint-disable-next-line typescript-eslint/consistent-type-definitions -- declaration merging derives Store's prototype API directly from the exact concrete domain classes installed below
 export interface Store extends StoreDomainOperations {}
 
-for (const OperationClass of STORE_DOMAIN_OPERATION_CLASSES) {
-  const descriptors = Object.getOwnPropertyDescriptors(OperationClass.prototype)
-  for (const [name, descriptor] of Object.entries(descriptors)) {
-    if (name !== 'constructor') {
-      Object.defineProperty(Store.prototype, name, descriptor)
-    }
-  }
-}
+installStoreDomainOperationClasses(Store.prototype)

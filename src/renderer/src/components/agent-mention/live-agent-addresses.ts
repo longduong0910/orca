@@ -1,7 +1,7 @@
 import { useMemo, useSyncExternalStore } from 'react'
 import { useAppStore } from '@/store'
 import { callRuntimeRpc } from '@/runtime/rpc/calls/runtime-rpc-call'
-import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
+import type { RuntimeClientTarget } from '../../../../shared/remote-runtime/host-catalog/runtime-client-target'
 import {
   LOCAL_EXECUTION_HOST_ID,
   toRuntimeExecutionHostId,
@@ -15,7 +15,7 @@ import {
 import type {
   RuntimeTerminalListResult,
   RuntimeTerminalSummary
-} from '../../../../shared/runtime-types'
+} from '../../../../shared/terminal/runtime/runtime-terminal-contracts'
 import { toHostSessionTabId } from '../../../../shared/workspace-layout/terminal-surface-id'
 import { toRemoteRuntimePtyId } from '../../../../shared/remote-runtime/remote-runtime-pty-id'
 

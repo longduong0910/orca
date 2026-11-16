@@ -2,7 +2,7 @@ import {
   DEFAULT_LOCAL_ORCA_PROFILE_NAME,
   type OrcaProfileIndex,
   type OrcaProfileListState
-} from '../../shared/orca-profiles'
+} from '../../shared/orca-profiles/orca-profiles'
 import { getOrcaProfileIndexPath, getProfileUserDataPath } from './profile-storage-paths'
 import {
   loadOrCreateProfileIndex,

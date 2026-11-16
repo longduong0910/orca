@@ -194,7 +194,8 @@ export class PairedRuntimeBrowserClientHostRegistry<
     return result
   }
 
-  private async closeAllEnvironments(): Promise<void> {
+  /** Close every environment but keep accepting starts; an in-process profile switch rehosts later. */
+  async closeAllEnvironments(): Promise<void> {
     const environmentIds = new Set([...this.hosts.keys(), ...this.operations.keys()])
     const results = await Promise.allSettled(
       [...environmentIds].map((environmentId) =>

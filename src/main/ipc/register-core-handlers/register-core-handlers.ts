@@ -194,6 +194,7 @@ export async function registerCoreHandlers(
     }
     registerTelemetryHandlers(store)
     registerOrcaProfileHandlers(store, {
+      switchInProcess: lifecycleOptions.switchOrcaProfileInProcess,
       onBeforeRelaunch: lifecycleOptions.onBeforeRelaunch,
       onAuthMutation: lifecycleOptions.onOrcaProfileAuthMutation,
       onBeforeSignOut: lifecycleOptions.onBeforeOrcaProfileSignOut,

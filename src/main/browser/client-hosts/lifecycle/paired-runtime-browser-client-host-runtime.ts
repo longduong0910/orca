@@ -159,6 +159,18 @@ export function configurePairedRuntimeBrowserClientHostsForOrcaProfile(options: 
   activeOrcaProfileId = options.orcaProfileId
 }
 
+/** In-process profile switch: hosts and route identities belong to the source profile's storage scope. */
+export async function switchPairedRuntimeBrowserClientHostsToOrcaProfile(
+  orcaProfileId: string
+): Promise<void> {
+  if (clientHostRouteIdentities.size > 0) {
+    clientHostRouteIdentities.clear()
+    notifyRouteProfilesChanged()
+  }
+  await browserClientHosts.closeAllEnvironments()
+  activeOrcaProfileId = orcaProfileId
+}
+
 export async function startPairedRuntimeBrowserClientHost(options: {
   environment: KnownRuntimeEnvironment
   authorityRuntimeId: string

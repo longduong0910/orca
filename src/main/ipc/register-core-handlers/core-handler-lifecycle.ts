@@ -3,6 +3,7 @@ import type {
   AiVaultPrepareSessionResumeResult
 } from '../../../shared/ai-vault/resume/ai-vault-resume-preparation'
 import type { OrcaRuntimeService } from '../../runtime/orca-runtime'
+import type { InProcessProfileSwitchOutcome } from '../../startup/profile-in-process-switch'
 import { settleWithinMs } from '../../startup/quit/quit-teardown-deadline'
 
 const RELAUNCH_DISMISSAL_CLOSE_TIMEOUT_MS = 2_000
@@ -22,6 +23,7 @@ export async function closeNotificationDismissalsBeforeRelaunch(
 export type CoreHandlerLifecycleOptions = {
   deferHostInitialization?: boolean
   hostInitialization?: Promise<void>
+  switchOrcaProfileInProcess?: (profileId: string) => Promise<InProcessProfileSwitchOutcome>
   onBeforeRelaunch?: () => void | Promise<void>
   onOrcaProfileAuthMutation?: () => void
   onBeforeOrcaProfileSignOut?: () => void

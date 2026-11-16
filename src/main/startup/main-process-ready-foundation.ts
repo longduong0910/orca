@@ -244,7 +244,7 @@ export async function initializeReadyFoundation(): Promise<void> {
       writeHttp1CompatibilityMarker(
         canonicalUserDataPath,
         settings.electronHttp1CompatibilityMode === true,
-        profile.profile.id
+        state.activeOrcaProfile?.profile.id ?? profile.profile.id
       )
     }
     if ('terminalWindowsWslDistro' in updates) {

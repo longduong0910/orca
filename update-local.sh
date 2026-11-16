@@ -42,9 +42,11 @@ nohup bash -c '
   while [ "$(osascript -e "application \"Orca\" is running")" = "true" ]; do sleep 1; done
   rsync -a --no-specials --no-devices --delete "'"$DATA_DIR"'/" "'"$BACKUP_DIR"'/"
   rm -rf "'"$APP_PATH"'.new"
-  cp -R "'"$BUILT_APP"'" "'"$APP_PATH"'.new"
+  mv "'"$BUILT_APP"'" "'"$APP_PATH"'.new"
   rm -rf "'"$APP_PATH"'"
   mv "'"$APP_PATH"'.new" "'"$APP_PATH"'"
+  # Drop leftover bundles so Spotlight/cleaners show one Orca; pnpm dev recreates its copy.
+  rm -rf "'"$(dirname "$BUILT_APP")"'" "'"$REPO_DIR/out/electron-dev"'"
   open "'"$APP_PATH"'"
   echo "$(date) installed $(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "'"$APP_PATH"'/Contents/Info.plist")"
 ' >>"$INSTALL_LOG" 2>&1 &

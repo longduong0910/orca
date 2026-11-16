@@ -116,12 +116,24 @@ export const STORE_DOMAIN_OPERATION_CLASSES = [
   WriteFlushBarrierOperations
 ] as const
 
+export function installStoreDomainOperationClasses(prototype: object): void {
+  for (const OperationClass of STORE_DOMAIN_OPERATION_CLASSES) {
+    const descriptors = Object.getOwnPropertyDescriptors(OperationClass.prototype)
+    for (const [name, descriptor] of Object.entries(descriptors)) {
+      if (name !== 'constructor') {
+        Object.defineProperty(prototype, name, descriptor)
+      }
+    }
+  }
+}
+
 export function installStoreDomainContexts(target: Store, domains: StoreDomains): void {
   // Mixed-in methods need each domain's private context symbols installed on Store too.
   for (const domain of Object.values(domains)) {
     for (const key of Object.getOwnPropertySymbols(domain)) {
       const { value } = Object.getOwnPropertyDescriptor(domain, key) ?? {}
-      Object.defineProperty(target, key, { value })
+      // Configurable so an in-process profile switch can install the next profile's contexts.
+      Object.defineProperty(target, key, { value, configurable: true })
     }
   }
 }
