@@ -161,7 +161,9 @@ const STATIC_TITLE_COPY = {
       'Switch input source / language (native)'
     ),
   'agent.mentionPalette': () =>
-    translate('keybindings.title.agentMentionPalette', 'Mention a live agent')
+    translate('keybindings.title.agentMentionPalette', 'Mention a live agent'),
+  'profile.switchNext': () =>
+    translate('keybindings.title.profileSwitchNext', 'Switch to next profile')
 } satisfies Record<StaticKeybindingActionId, () => string>
 
 const GROUP_COPY = {

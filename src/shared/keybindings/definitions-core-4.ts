@@ -175,5 +175,13 @@ export const KEYBINDING_DEFINITION_CORE_4: readonly KeybindingDefinition[] = [
     scope: 'global',
     searchKeywords: ['shortcut', 'agent', 'mention', 'name', 'message', 'send'],
     defaultBindings: platformBindings(['Mod+Shift+2'])
+  },
+  {
+    id: 'profile.switchNext',
+    title: 'Switch to next profile',
+    group: 'Global',
+    scope: 'global',
+    searchKeywords: ['shortcut', 'profile', 'switch', 'account', 'next'],
+    defaultBindings: platformBindings(['Mod+Alt+U'])
   }
 ]

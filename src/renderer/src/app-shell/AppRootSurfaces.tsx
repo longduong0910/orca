@@ -33,6 +33,7 @@ import {
 import type { FloatingWorkspacePanelState } from './use-floating-workspace-panel'
 import type { OnboardingGate } from './use-onboarding-and-feature-tips'
 import { AgentMentionPalette } from '../components/agent-mention/AgentMentionPalette'
+import { useNextProfileShortcut } from '../components/orca-profiles/use-next-profile-shortcut'
 
 const QuickOpen = lazy(() => import('../components/QuickOpen'))
 const WorkspaceCleanupDialog = lazy(
@@ -127,6 +128,7 @@ export const AppRootSurfaces = memo(function AppRootSurfaces(props: {
   const languageReady = useLanguageReadiness((state) => state.ready)
   const { mountedLazyModalIds, shouldMountAddRepoDialog } = useLazyModalMounts()
   usePreloadWorktreeJumpPalette()
+  useNextProfileShortcut()
   const activeView = useAppStore((s) => s.activeView)
   const activeModal = useAppStore((s) => s.activeModal)
   // Subscribe only to consumed settings so unrelated preferences cannot rerender every overlay.

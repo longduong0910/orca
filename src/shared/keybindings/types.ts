@@ -32,6 +32,7 @@ export type KeybindingActionId =
   | 'worktree.navigateUp'
   | 'worktree.navigateDown'
   | 'agent.mentionPalette'
+  | 'profile.switchNext'
   | 'app.settings'
   | 'app.forceReload'
   | 'workspace.create'

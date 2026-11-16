@@ -24846,6 +24846,7 @@
       "terminalSplitDown": "Split terminal down",
       "terminalSwitchInputSource": "Switch input source / language (native)",
       "agentMentionPalette": "Mention a live agent",
+      "profileSwitchNext": "Switch to next profile",
       "newAgentTab": "New {{agent}} tab",
       "tabNewBrowserSplitRight": "New browser tab in right split",
       "eca3c9fdd7": "Select tab 1–9",
